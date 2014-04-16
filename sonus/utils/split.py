@@ -21,46 +21,12 @@ import getopt
 
 cmd = "ffmpeg -ss {0} -i {1}.mp3 -t {2} {3}.mp3"
 
-def main():
-    # seperator used in formats
-    seperator = ':'
-
-    # colon seperated formats
-    formats = 'mp3:wav:ogg'
-
-    # in minutes
-    length = 10
-
-    # in minutes
-    chunksize = 2
-
-    path = os.getcwd()
-
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], 's:f:c:l:p:', ['formats=', 'chunksize=', 'length=', 'path='])
-
-        for option, argument in opts:
-            if option == '-s':
-                seperator = argument
-            elif option in ('-f', '--formats'):
-                formats = argument
-            elif option in ('-c', '--chunksize'):
-                chunksize = argument
-            elif option in ('-l', '--length'):
-                length = argument
-            elif option in ('-p', '--path'):
-                path = argument
-            else:
-                print 'invalid option'
-                sys.exit(1)
-    except getopt.GetoptError as e:
-        print str(e)
-
+def splitter(separator=':', formats='mp3:wav:ogg', length=10, chunksize=2, path=os.getcwd()):
     os.chdir(path)
 
     audio_files = list()
 
-    given_formats = formats.split(seperator)
+    given_formats = formats.split(separator)
 
     for ext in given_formats:
         audio_files.extend(glob.glob('*.' + ext))
@@ -82,8 +48,39 @@ def main():
                                  time.strftime('%H:%M:%S', time.gmtime(chunksize * 60)),
                                  name + "_" + str(i) + "_" + str(i + chunksize))
 
-            print command
-            #subprocess.call(command.split(" "))
+            subprocess.call(command.split(" "))
+
 
 if __name__ == '__main__':
-    main()
+    separator = ':'
+
+    formats = 'mp3:wav:ogg'
+
+    length = 10
+
+    chunksize = 2
+
+    path = os.getcwd()
+
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], 's:f:c:l:p:',
+                                   ['separator=', 'formats=', 'chunksize=', 'length=', 'path='])
+
+        for option, argument in opts:
+            if option in ('-s', '--separator'):
+                separator = argument
+            elif option in ('-f', '--formats'):
+                formats = argument
+            elif option in ('-c', '--chunksize'):
+                chunksize = argument
+            elif option in ('-l', '--length'):
+                length = argument
+            elif option in ('-p', '--path'):
+                path = argument
+            else:
+                print 'invalid option'
+                sys.exit(1)
+    except getopt.GetoptError as e:
+        print str(e)
+
+    splitter(separator=separator, formats=formats, length=length, chunksize=chunksize, path=path)
