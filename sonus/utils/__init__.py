@@ -1,3 +1,4 @@
 import sonusreader
-__all__=[sonusreader]
+import split
+__all__=[sonusreader, split]
 
