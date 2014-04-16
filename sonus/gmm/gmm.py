@@ -210,16 +210,16 @@ class GaussianMixtureModel(object):
 
                 method = self._options.get('method')
 
-                if method == 'kmeans':
-                    models, apriori = self.__kmeans_initialization()
+                if method == 'uniform':
+                    models, apriori = self.__uniform_initialization()
                 elif method == 'random':
                     models, apriori = self.__random_initialization()
                 else:
-                    models, apriori = self.__uniform_initialization()
+                    models, apriori = self.__kmeans_initialization()
             else:
-                models, apriori = self.__uniform_initialization()
+                models, apriori = self.__kmeans_initialization()
         else:
-            models, apriori = self.__uniform_initialization()
+            models, apriori = self.__kmeans_initialization()
 
         return models, apriori
 
@@ -343,6 +343,7 @@ class GaussianMixtureModel(object):
             # expectation step
             resp = self.eStep()
 
+            # calculate the likelihood
             likelihood.append(self.loglikelihood(resp))
 
             # check for convergence
