@@ -38,8 +38,9 @@ def list_files(arglist):
     if dirpath:
         if os.path.isdir(os.path.expanduser(dirpath)):
             os.chdir(os.path.expanduser(dirpath))
+            all_files = os.listdir(dirpath)
             for format in valid_path_formats:
-                files.extend(glob.glob(format))
+                files.extend(fnmatch.filter(all_files, format))
         else:
             print 'invalid directory path. please specify valid directory path.'
             sys.exit(2)

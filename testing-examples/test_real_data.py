@@ -7,12 +7,24 @@ from tempfile import mkdtemp
 import multiprocessing as mp
 import cPickle
 import h5py
-
+import getopt
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 import sonus.feature.mfcc as mfcc
 import sonus.utils.sonusreader as sonusreader
 import sonus.gmm.gmm as gmm
+
+def comp(a, b):
+    a = int(a.split('_')[1])
+    b = int(b.split('_')[1])
+
+    if a == b:
+        return 0
+    elif a > b:
+        return 1
+    else:
+        return -1
+
 
 def getChunks(fileslist, numprocs):
     """ get the chunks to be executed by each process """
@@ -60,23 +72,27 @@ def getMfccs(fileslist, sharedlist, lock):
 
         print 'done processing file: ', filepath
 
-def main():
+def test(train=0.7):
+    print 'train ', train
     kannada = "C:\\Users\\bhuvan\\Desktop\\split_files\\kannada"
     english = "C:\\Users\\bhuvan\\Desktop\\split_files\\english"
+    hindi = "C:\\Users\\bhuvan\\Desktop\\split_files\\hindi"
 
-    kan_files = test_gmm_win.list_files(['--dirpath=' + kannada])
-    english_files = test_gmm_win.list_files(['--dirpath=' + english])
+    kan_files = sorted(test_gmm_win.list_files(['--dirpath=' + kannada]), cmp = comp)
+    english_files = sorted(test_gmm_win.list_files(['--dirpath=' + english]), cmp=comp)
+    hindi_files = sorted(test_gmm_win.list_files(['--dirpath=' + hindi]), cmp=comp)
 
-    numfiles = min(len(kan_files), len(english_files))
+    numfiles = min(len(kan_files), len(english_files), len(hindi_files))
 
-    len_train_set = int(round(0.7 * numfiles))
-
-    print len_train_set
+    len_train_set = int(round(train * numfiles))
 
     training_set = []
     for i in range(len_train_set):
         training_set.extend([os.path.join(kannada, kan_files[i]),
-        os.path.join(english, english_files[i])])
+        os.path.join(english, english_files[i]),
+        os.path.join(hindi, hindi_files[i])])
+
+    print 'length train set ', len(training_set)
 
     # number of processes
     numprocs = 4
@@ -123,17 +139,23 @@ def main():
 
     parts = getChunks(data, 5)
 
-    path = "C:\\Users\\bhuvan\\Desktop\\split_files\\mfcc-data"
+    path = "C:\\Users\\bhuvan\\Desktop\\split_files\\" + str(train)
+
+    try:
+        os.mkdir(path)
+        os.mkdir(os.path.join(path, "MFCC"))
+    except Exception as e:
+        pass
 
     for i in range(len(parts)):
-        fobj = open(os.path.join(path, "PART_" + str(i)), "wb")
+        fobj = open(os.path.join(os.path.join(path, "MFCC"), "PART_" + str(i)), "wb")
         cPickle.dump(data[parts[i][0]:parts[i][1]], fobj)
         fobj.close()
 
     # stored mfcc data into multiple pickled files
 
     # now store the data into a hdf5 dataset
-    hdffile = h5py.File("C:\\Users\\bhuvan\\Desktop\\split_files\\mfcc_data.hdf5", "w")
+    hdffile = h5py.File(os.path.join(path, "mfcc_data.hdf5"), "w")
 
     # now create a dataset
     hdfdataset = hdffile.create_dataset("mfcc_data", shape=dim, dtype=np.float32, data=data)
@@ -156,9 +178,24 @@ def main():
 
     print 'emm done'
 
-    gmm.GaussianMixtureModel.saveobject(GMM, filepath="C:\\Users\\bhuvan\\Desktop\\split_files")
+    gmm.GaussianMixtureModel.saveobject(GMM, filepath=path)
 
 if __name__ == '__main__':
     start = time.time()
-    main()
+    train = 0.7
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], 't:',
+                                   ['train='])
+
+        for option, argument in opts:
+            if option in ('-t', '--train'):
+                train = float(argument)
+            else:
+                print 'invalid option'
+                sys.exit(1)
+    except getopt.GetoptError as e:
+        print str(e)
+
+    test(train)
+
     print str((time.time() - start)/60) + " minutes"
