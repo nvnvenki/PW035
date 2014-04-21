@@ -15,7 +15,7 @@ chunksize: chunksize in minutes
 import os
 import sys
 import subprocess
-import glob
+import fnmatch
 import time
 import getopt
 
@@ -24,14 +24,16 @@ cmd = "ffmpeg -ss {0} -i {1}.mp3 -t {2} {3}.mp3"
 def splitter(separator=':', formats='mp3:wav:ogg', length=10, chunksize=2, path=os.getcwd()):
     os.chdir(path)
 
-    audio_files = list()
+    all_files = os.listdir(path)
 
-    given_formats = formats.split(separator)
+    songs = list()
 
-    for ext in given_formats:
-        audio_files.extend(glob.glob('*.' + ext))
+    formats = formats.split(separator)
 
-    base_names = map(lambda x: os.path.splitext(x)[0], audio_files)
+    for format in formats:
+        songs.extend(fnmatch.filter(all_files, '*.' + format))
+
+    base_names = map(lambda x: os.path.splitext(x)[0], songs)
 
     for name in base_names:
         path_ = os.path.join(path, name)

@@ -125,6 +125,7 @@ class SonusReader(object):
             '-sn',  # drop any subtitles present in the file
             '-f', 'wav',  # specify the output file format needed
             '-ar', '44100',  # uniform sample rate for all audio files
+            '-ab', '128k',
             outputFile.name
         ]
 
