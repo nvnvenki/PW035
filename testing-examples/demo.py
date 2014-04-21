@@ -1,6 +1,10 @@
 import os
 import sys
 import test_gmm_win
+import time
+import getopt
+import shutil
+import random
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
@@ -9,37 +13,67 @@ import sonus.utils.sonusreader as sonusreader
 import sonus.gmm.gmm as gmm
 
 def main():
-    kannada = "C:\\Users\\bhuvan\\Desktop\\training set\\Kannada\\wav"
-    hindi = "C:\\Users\\bhuvan\\Desktop\\training set\\Hindi\\wav"
+    dirpath = os.getcwd()
 
-    kan_files = test_gmm_win.list_files(['--dirpath=' + kannada])
-    hindi_files = test_gmm_win.list_files(['--dirpath=' + hindi])
+    objpath = "C:\\Users\\bhuvan\\Desktop\\gmm-object"
 
-    nobj = gmm.GaussianMixtureModel.loadobject("C:\\Users\\bhuvan\\sonus\\gmm-object")
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], 'd:o:',
+                                   ['dirpath=', "objpath="])
 
-    kan_detected = 0
-    hin_detected = 0
+        for option, argument in opts:
+            if option in ('-d', '--dirpath'):
+                dirpath = argument
+            elif option in ('-o', '--objpath'):
+                objpath = argument
+            else:
+                print 'invalid option'
+                sys.exit(1)
+    except getopt.GetoptError as e:
+        print str(e)
 
-    for i in range(600, 800):
-        a = sonusreader.SonusReader.from_file(os.path.join(kannada, kan_files[i]))
+    print dirpath
 
-        b = sonusreader.SonusReader.from_file(os.path.join(hindi, hindi_files[i]))
+    print objpath
 
-        adata = mfcc.mfcc(a.data, samplerate=a.samplerate)
+    all_files = test_gmm_win.list_files(['--dirpath=' + dirpath])
 
-        bdata = mfcc.mfcc(b.data, samplerate=b.samplerate)
+    all_files = map(lambda x: os.path.join(dirpath, x), all_files)
 
-        if nobj.fit(adata) == 0:
-            kan_detected = kan_detected + 1
+    random.shuffle(all_files)
 
-        if nobj.fit(bdata) == 1:
-            hin_detected = hin_detected + 1
+    gmm_obj = gmm.GaussianMixtureModel.loadobject(objpath)
 
-    print '-' * 30
-    print 'Language', '\t\ttested files', '\t\tdetected files'
-    print 'Kannada' , '\t\t' + str(200), '\t\t' + str(kan_detected)
-    print 'Hindi', '\t\t' + str(200), '\t\t' + str(hin_detected)
-    print '-' * 30
+    print gmm_obj.apriori
+
+    kannada = "kannada"
+    english = "english"
+
+    kan_dir = os.path.join(dirpath, kannada)
+    eng_dir = os.path.join(dirpath, english)
+
+    try:
+        os.mkdir(kan_dir)
+        os.mkdir(eng_dir)
+    except Exception as e:
+        pass
+
+    for file in all_files:
+        print 'reading ', file, '...'
+        audio_data = sonusreader.SonusReader.from_file(file)
+
+        mfcc_data = mfcc.mfcc(audio_data.data, samplerate=audio_data.samplerate)
+
+        class_ = gmm_obj.fit(mfcc_data)
+
+        if class_ == 0:
+            shutil.move(file, kan_dir)
+
+        if class_ == 1:
+            shutil.move(file, eng_dir)
 
 if __name__ == '__main__':
+    start_time = time.time()
     main()
+    end_time = time.time()
+    print str((end_time - start_time) / 60) + ' minutes...'
