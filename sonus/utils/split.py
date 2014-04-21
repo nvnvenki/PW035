@@ -72,9 +72,9 @@ if __name__ == '__main__':
             elif option in ('-f', '--formats'):
                 formats = argument
             elif option in ('-c', '--chunksize'):
-                chunksize = argument
+                chunksize = int(argument)
             elif option in ('-l', '--length'):
-                length = argument
+                length = int(argument)
             elif option in ('-p', '--path'):
                 path = argument
             else:
