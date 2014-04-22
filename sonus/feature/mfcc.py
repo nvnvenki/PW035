@@ -1,6 +1,5 @@
 import mfcc_utils
 import numpy as np
-import matplotlib.pyplot as mp
 
 def mfcc(signal, samplerate = 16000, windowLength = 0.025, windowStep = 0.01,\
              numCepstrals = 12, numFilters = 26, nfft = 512, lowFreq = 133.33,\
