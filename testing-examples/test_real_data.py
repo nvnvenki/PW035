@@ -8,6 +8,8 @@ import multiprocessing as mp
 import cPickle
 import h5py
 import getopt
+import numpy as np
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 import sonus.feature.mfcc as mfcc
@@ -74,9 +76,9 @@ def getMfccs(fileslist, sharedlist, lock):
 
 def test(train=0.7):
     print 'train ', train
-    kannada = "C:\\Users\\bhuvan\\Desktop\\split_files\\kannada"
-    english = "C:\\Users\\bhuvan\\Desktop\\split_files\\english"
-    hindi = "C:\\Users\\bhuvan\\Desktop\\split_files\\hindi"
+    kannada = "C:\\Users\\Bhuvan Anand\\Desktop\\split_files\\kannada"
+    english = "C:\\Users\\Bhuvan Anand\\Desktop\\split_files\\english"
+    hindi = "C:\\Users\\Bhuvan Anand\\Desktop\\split_files\\hindi"
 
     kan_files = sorted(test_gmm_win.list_files(['--dirpath=' + kannada]), cmp = comp)
     english_files = sorted(test_gmm_win.list_files(['--dirpath=' + english]), cmp=comp)
@@ -139,7 +141,7 @@ def test(train=0.7):
 
     parts = getChunks(data, 5)
 
-    path = "C:\\Users\\bhuvan\\Desktop\\split_files\\" + str(train)
+    path = "C:\\Users\\Bhuvan Anand\\Desktop\\split_files\\" + str(train)
 
     try:
         os.mkdir(path)
@@ -168,7 +170,7 @@ def test(train=0.7):
 
     print 'done copying to memfile'
 
-    GMM = gmm.GaussianMixtureModel(hdfdataset, 2, options={
+    GMM = gmm.GaussianMixtureModel(hdfdataset, 3, options={
         'method':'kmeans'
         })
 
