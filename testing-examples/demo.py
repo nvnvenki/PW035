@@ -15,7 +15,9 @@ import sonus.gmm.gmm as gmm
 def main():
     dirpath = os.getcwd()
 
-    objpath = "C:\\Users\\bhuvan\\Desktop\\gmm-object"
+    home = os.path.expanduser('~')
+
+    objpath = os.path.join(home, "Desktop\\gmm-object")
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'd:o:',

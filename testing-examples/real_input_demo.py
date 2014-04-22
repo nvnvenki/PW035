@@ -11,13 +11,15 @@ import sonus.gmm.gmm as gmm
 
 
 def main():
-    kannada = "C:\\Users\\bhuvan\\Desktop\\split_files\\kannada"
-    english = "C:\\Users\\bhuvan\\Desktop\\split_files\\english"
+    home = os.path.expanduser('~')
+
+    kannada = os.path.join(home, "Desktop\\split_files\\kannada")
+    english = os.path.join(home, "Desktop\\split_files\\english")
 
     kan_files = test_gmm_win.list_files(['--dirpath=' + kannada])
     english_files = test_gmm_win.list_files(['--dirpath=' + english])
 
-    nobj = gmm.GaussianMixtureModel.loadobject("C:\\Users\\bhuvan\\Desktop\\gmm-object")
+    nobj = gmm.GaussianMixtureModel.loadobject(os.path.join(home, "Desktop\\gmm-object"))
 
     num_files = min(len(english_files), len(kan_files))
 

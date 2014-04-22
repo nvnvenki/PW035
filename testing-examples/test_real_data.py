@@ -76,9 +76,10 @@ def getMfccs(fileslist, sharedlist, lock):
 
 def test(train=0.7):
     print 'train ', train
-    kannada = "C:\\Users\\Bhuvan Anand\\Desktop\\split_files\\kannada"
-    english = "C:\\Users\\Bhuvan Anand\\Desktop\\split_files\\english"
-    hindi = "C:\\Users\\Bhuvan Anand\\Desktop\\split_files\\hindi"
+    home = os.path.expanduser('~')
+    kannada = os.path.join(home, "Desktop\\split_files\\kannada")
+    english = os.path.join(home, "Desktop\\split_files\\english")
+    hindi =  os.path.join(home, "Desktop\\split_files\\hindi")
 
     kan_files = sorted(test_gmm_win.list_files(['--dirpath=' + kannada]), cmp = comp)
     english_files = sorted(test_gmm_win.list_files(['--dirpath=' + english]), cmp=comp)
@@ -141,7 +142,7 @@ def test(train=0.7):
 
     parts = getChunks(data, 5)
 
-    path = "C:\\Users\\Bhuvan Anand\\Desktop\\split_files\\" + str(train)
+    path = os.path.join(os.path.join(home, "Desktop\\split_files"), str(train))
 
     try:
         os.mkdir(path)

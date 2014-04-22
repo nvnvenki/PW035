@@ -6,12 +6,37 @@ import test_gmm_win
 import test_real_data
 import multiprocessing as mp
 import numpy as np
+import fnmatch
+import cPickle
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 import sonus.feature.mfcc as mfcc
 import sonus.utils.sonusreader as sonusreader
 import sonus.gmm.gmm as gmm
+
+
+def getPercentage(res):
+    kan_files = []
+    english_files = []
+    hindi_files = []
+    kan = 0
+    eng = 0
+    hin = 0
+    for file, cluster in res:
+        if fnmatch.fnmatch(os.path.split(file)[-1], 'kannada*.*'):
+            kan_files.append(file)
+            if cluster == 2:
+                kan += 1
+        elif fnmatch.fnmatch(os.path.split(file)[-1], 'english*.*'):
+            english_files.append(file)
+            if cluster == 0:
+                eng += 1
+        elif fnmatch.fnmatch(os.path.split(file)[-1], 'hindi*.*'):
+            hindi_files.append(file)
+            if cluster == 1:
+                hin += 1
+    return [(len(kan_files), kan), (len(english_files), eng), (len(hindi_files), hin)]
 
 def getCluster(obj, test_set, sharedlist, lock):
     for file in test_set:
@@ -21,7 +46,7 @@ def getCluster(obj, test_set, sharedlist, lock):
 
         lock.acquire()
 
-        sharedlist[-1].append((file, obj.fit(mfccdata)))
+        sharedlist[0] = sharedlist[0] + [(file, obj.fit(mfccdata))]
 
         lock.release()
 
@@ -44,7 +69,6 @@ def genConfusionMatrix(obj, test_set):
     sharedlist.append(data)
 
     chunks = test_real_data.getChunks(test_set, numprocs)
-    print chunks
 
     # processes
     procs = []
@@ -55,12 +79,14 @@ def genConfusionMatrix(obj, test_set):
 
     map(lambda x: x.join(), procs)
 
-    return sharedlist[-1]
+    res = sharedlist[0]
+
+    return res
 
 if __name__ == '__main__':
-    start = time.time()
+    start_ = time.time()
     train = 0.1
-    dirpath = 'C:\\Users\\Bhuvan Anand\\Desktop\\split_files'
+    dirpath = os.path.join(os.path.expanduser('~'), 'Desktop\\split_files')
 
     kannada = os.path.join(dirpath, 'kannada')
     english = os.path.join(dirpath, 'english')
@@ -90,22 +116,29 @@ if __name__ == '__main__':
 
     obj = gmm.GaussianMixtureModel.loadobject(filepath=os.path.join(path, 'gmm-object'))
 
-    test = 10
-
     start = int(round(train * numfiles))
     print 'start ', start
 
-    end = start + test
-    print 'end ', end
+    d = {}
 
-    test_set = []
-    for i in range(start, end):
-        test_set.extend([os.path.join(kannada, kan_files[i]),
-        os.path.join(english, english_files[i]),
-        os.path.join(hindi, hindi_files[i])])
+    for test in xrange(5, 40, 5):
+        end = start + test
+        print 'end ', end
 
-    print test_set
+        test_set = []
+        for i in range(start, end):
+            test_set.extend([os.path.join(kannada, kan_files[i]),
+            os.path.join(english, english_files[i]),
+            os.path.join(hindi, hindi_files[i])])
 
-    print genConfusionMatrix(obj, test_set)
+        res = genConfusionMatrix(obj, test_set)
 
-    print str((time.time() - start)/60) + " minutes"
+        d[str(test * 3)] = getPercentage(res)
+
+        print 'done, ', start, " to ", end
+
+    with open(os.path.join(path, 'dict'), 'wb') as fobj:
+        cPickle.dump(d, fobj)
+        fobj.close()
+
+    print str((time.time() - start_)/60) + " minutes"

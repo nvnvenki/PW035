@@ -14,7 +14,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 import sonus.gmm.gmm as gmm
 
 def next(train=0.7):
-    path = "C:\\Users\\Bhuvan Anand\\Desktop\\split_files"
+    home = os.path.expanduser('~')
+    path = os.path.join(home, "Desktop\\split_files")
 
     path = os.path.join(path, str(train - 0.1))
 
@@ -45,9 +46,9 @@ def next(train=0.7):
 
     print 'train ', train
 
-    kannada = "C:\\Users\\Bhuvan Anand\\Desktop\\split_files\\kannada"
-    english = "C:\\Users\\Bhuvan Anand\\Desktop\\split_files\\english"
-    hindi = "C:\\Users\\Bhuvan Anand\\Desktop\\split_files\\hindi"
+    kannada = os.path.join(home, "Desktop\\split_files\\kannada")
+    english = os.path.join(home, "Desktop\\split_files\\english")
+    hindi = os.path.join(home, "Desktop\\split_files\\hindi")
 
     kan_files = sorted(test_gmm_win.list_files(['--dirpath=' + kannada]), cmp=test_real_data.comp)
     english_files = sorted(test_gmm_win.list_files(['--dirpath=' + english]), cmp=test_real_data.comp)
@@ -118,7 +119,7 @@ def next(train=0.7):
 
     parts = test_real_data.getChunks(data, 5)
 
-    path = "C:\\Users\\Bhuvan Anand\\Desktop\\split_files\\" + str(train)
+    path =  os.path.join(os.path.join(home, "Desktop\\split_files"), str(train))
 
     try:
         os.mkdir(path)

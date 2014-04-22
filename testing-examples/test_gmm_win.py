@@ -63,8 +63,9 @@ def list_files(arglist):
     return files
 
 def main():
-    kannada = "C:\\Users\\bhuvan\\Desktop\\training set\\Kannada\\wav"
-    hindi = "C:\\Users\\bhuvan\\Desktop\\training set\\Hindi\\wav"
+    home = os.path.expanduser('~')
+    kannada = os.path.join(home,  "Desktop\\training set\\Kannada\\wav")
+    hindi = os.path.join(home, "Desktop\\training set\\Hindi\\wav")
 
     kan_files = list_files(['--dirpath=' + kannada])
     hindi_files = list_files(['--dirpath=' + hindi])
@@ -106,7 +107,7 @@ def main():
 
     GMM.expectationMaximization()
 
-    gmm.GaussianMixtureModel.saveobject(GMM, filepath="C:\\Users\\bhuvan\\sonus\\uniform")
+    gmm.GaussianMixtureModel.saveobject(GMM, filepath=os.path.join(home, "sonus\\uniform"))
 
 if __name__ == '__main__':
     main()
