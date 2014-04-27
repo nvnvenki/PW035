@@ -133,10 +133,12 @@ if __name__ == '__main__':
 
         res = genConfusionMatrix(obj, test_set)
 
+        if end == start + 20:
+            print res
+
         d[str(test * 3)] = getPercentage(res)
 
         print 'done, ', start, " to ", end
-
     with open(os.path.join(path, 'dict'), 'wb') as fobj:
         cPickle.dump(d, fobj)
         fobj.close()
