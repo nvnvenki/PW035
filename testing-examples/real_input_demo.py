@@ -23,6 +23,8 @@ def main():
 
     nobj = gmm.GaussianMixtureModel.loadobject(os.path.join(home, "Desktop\\split_files\\0.05\\gmm-object"))
 
+    print nobj.apriori
+
     num_files = min(len(english_files), len(kan_files), len(hin_files))
 
     start = int(num_files * 0.2)
