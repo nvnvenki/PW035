@@ -89,11 +89,11 @@ def test(train=0.7):
 
     len_train_set = int(round(train * numfiles))
 
-    training_set = []
+    print len_train_set
+
+    training_set = list()
     for i in range(len_train_set):
-        training_set.extend([os.path.join(kannada, kan_files[i]),
-        os.path.join(english, english_files[i]),
-        os.path.join(hindi, hindi_files[i])])
+        training_set.extend([os.path.join(kannada, kan_files[i]), os.path.join(english, english_files[i]), os.path.join(hindi, hindi_files[i])])
 
     print 'length train set ', len(training_set)
 
