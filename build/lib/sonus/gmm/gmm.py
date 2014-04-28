@@ -339,6 +339,8 @@ class GaussianMixtureModel(object):
         """
         likelihood = list()
 
+        count = 0
+
         for i in xrange(iterations):
             # expectation step
             resp = self.eStep()
@@ -352,6 +354,10 @@ class GaussianMixtureModel(object):
 
             # maximization step
             self.mStep(resp)
+
+            count += 1
+
+        print 'number of iterations in EM: ', count
 
     def eStep(self, data = None):
         """expectation step
